@@ -612,9 +612,16 @@
     });
 
 
-    // ── COUNTDOWN (launch in 60 days from page load) ──
-    const launchDate = new Date();
-    launchDate.setDate(launchDate.getDate() + 70);
+    // ── COUNTDOWN ──
+    let launchDateStr = localStorage.getItem('averionLaunchDate');
+    let launchDate;
+    if (launchDateStr) {
+      launchDate = new Date(launchDateStr);
+    } else {
+      launchDate = new Date();
+      launchDate.setDate(launchDate.getDate() + 70);
+      localStorage.setItem('averionLaunchDate', launchDate.toISOString());
+    }
 
     function updateCountdown() {
       const now = new Date();
