@@ -649,17 +649,54 @@
     updateCountdown();
     setInterval(updateCountdown, 1000);
     // ── NOTIFY FORM ──────────────────────────────────
-    function handleNotify() {
-      const email = document.getElementById('emailInput').value.trim();
+    async function handleNotify() {
+      const emailInput = document.getElementById('emailInput');
+      const email = emailInput.value.trim();
+
+      // 1. Validation
       if (!email || !email.includes('@')) {
-        document.getElementById('emailInput').style.borderColor = 'rgba(255,80,80,0.5)';
-        setTimeout(() => document.getElementById('emailInput').style.borderColor = '', 1500);
+        emailInput.style.borderColor = 'rgba(255,80,80,0.5)';
+        setTimeout(() => emailInput.style.borderColor = '', 1500);
         return;
       }
-      document.getElementById('notifyForm').style.display = 'none';
-      const success = document.getElementById('notifySuccess');
-      success.classList.add('show');
+
+      // 2. Visual Feedback (Optional: disable input while sending)
+      emailInput.disabled = true;
+      emailInput.style.opacity = '0.5';
+
+      try {
+        // 3. Send data to Formspree
+        const response = await fetch('https://formspree.io/f/xvzdwyla', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            email: email,
+            message: "New subscriber from Averion Launch Page"
+          })
+        });
+
+        if (response.ok) {
+          // 4. Success UI
+          document.getElementById('notifyForm').style.display = 'none';
+          const success = document.getElementById('notifySuccess');
+          success.classList.add('show');
+        } else {
+          // 5. Error handling
+          alert("Submission failed. Please try again.");
+          emailInput.disabled = false;
+          emailInput.style.opacity = '1';
+        }
+      } catch (error) {
+        alert("Network error. Please check your connection.");
+        emailInput.disabled = false;
+        emailInput.style.opacity = '1';
+      }
     }
+
+    // Keep your existing Enter key listener
     document.getElementById('emailInput').addEventListener('keydown', e => {
       if (e.key === 'Enter') handleNotify();
     });
